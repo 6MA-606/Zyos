@@ -15,8 +15,8 @@ class ZyosResponse {
 
   /**
    * Create a success response
-   * @param {*} data - Data to send in the response
-   * @param {*} statusCode - Status code of the response
+   * @param {string} data - Data to send in the response
+   * @param {number} statusCode - Status code of the response
    * @returns 
    */
   static success(data, statusCode) {
@@ -26,7 +26,7 @@ class ZyosResponse {
   /**
    * Create an error response
    * @param {string} message - Error message to send in the response
-   * @param {*} statusCode - Status code of the response
+   * @param {number} statusCode - Status code of the response
    * @returns 
    */
   static error(message, statusCode) {
@@ -64,7 +64,7 @@ const config = {
  * @param {'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'} options.method - Method to use in the request
  * @param {object} options.headers - Headers to send in the request
  * @param {object} options.body - Body to send in the request
- * @param {string} options.useToken - Use token in the request
+ * @param {boolean} options.useToken - Use token in the request
  * @param {string} options.token - Token to send in the request
  * @param {string} options.tokenKey - Key to send the token in the headers
  * @param {function} options.getToken - Function to get and return the token
