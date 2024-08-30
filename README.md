@@ -67,7 +67,7 @@ const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1'
 console.log(response.data)
 ```
 
-<br>
+<br />
 
 **method: string**
 
@@ -84,7 +84,8 @@ const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1'
 })
 console.log(response.data)
 ```
-<br>
+
+<br />
 
 **body: object**
 
@@ -105,7 +106,7 @@ const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts', 
 console.log(response.data)
 ```
 
-<br>
+<br />
 
 **useToken: boolean**
 
@@ -121,6 +122,8 @@ const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1'
 })
 console.log(response.data)
 ```
+
+<br />
 
 **token: string**
 
@@ -141,6 +144,8 @@ const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1'
 console.log(response.data)
 ```
 
+<br />
+
 **tokenGetter: function**
 
 You can set the token getter in the request by passing a function that returns the token you want to set. This option will be used if `useToken` is set to `true`.
@@ -160,4 +165,45 @@ const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1'
 console.log(response.data)
 ```
 
-Wait for more documentation...
+<br />
+
+**computedFunction: function**
+
+You can set the computed function to compute the response data before returning it.
+
+```javascript
+import zyos from 'zyos'
+
+// Make a request with computed function
+const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1', {
+  computedFunction: (data) => { // data is the response body
+    data.timestamp = Date.now()
+    return data // return the computed data that added timestamp
+  }
+})
+console.log(response.data) // { userId: 1, id: 1, title: '...', body: '...', timestamp: 1630000000000 }
+```
+
+---
+
+### Defining Config
+
+You can define the default config for all requests by calling `zyos.defineConfig()`.
+
+i.e.
+```javascript
+import zyos from 'zyos'
+
+zyos.defineConfig({
+  defaultHeaders: {
+    'Your-Header': 'Your-Value'
+  },
+  defaultMethod: 'GET',
+  defaultToken: 'your-token',
+  defaultTokenGetter: () => {
+    return 'your-token from getter'
+  }
+})
+```
+
+You can config the default headers, default method, default token, and default token getter in the default config. The default config will be used if the options are not set in the request.
