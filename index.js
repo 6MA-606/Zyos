@@ -5,6 +5,7 @@ class ZyosConfig {
    * Create a new ZyosConfig object
    */
   constructor() {
+    this.defaultTokenKey = 'Authorization'
     this.defaultToken = null
     this.defaultTokenGetter = null
     this.defaultHeaders = {

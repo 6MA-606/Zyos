@@ -1,6 +1,6 @@
 {
   "name": "zyos",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "index.js",
   "repository": {
     "url": "https://github.com/6MA-606/Zyos"
@@ -10,5 +10,5 @@
   },
   "author": "Sittha Manittayakul",
   "license": "MIT",
-  "description": ""
+  "description": "This is a simple package for make window.fetch easier to use."
 }
