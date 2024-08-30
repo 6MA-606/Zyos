@@ -119,7 +119,14 @@ async function fetch(url, options = {}) {
 
   try {
     const response = await window.fetch(url, fetchOptions)
-    let data = await response.json()
+    let data
+
+    try {
+      data = await response.json()
+    } catch (error) {
+      console.warn('Zyos Error: Can\'t parse response to JSON. Returning empty object.')
+      data = {}
+    }
 
     if (options.computeFunction && typeof options.computeFunction === 'function') {
       data = options.computeFunction(data)
