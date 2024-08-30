@@ -1,8 +1,14 @@
 # Zyos
 
-Make `window.fetch()` easier to use.
+Simplifying `window.fetch()` for easier HTTP requests.
 
-This is a simple wrapper around `window.fetch()` that makes it easier to use. It's a small library that provides a simple API to make HTTP requests.
+Zyos is a small library that wraps around `window.fetch()` to make it simpler to use for HTTP requests. It offers a straightforward API for working with requests and responses.
+
+> **Note:** Zyos is designed for modern browsers that support `window.fetch()`. If you're targeting older browsers, you might need a polyfill.
+
+> **Note:** Zyos works best with JSON data. If you need to handle other data types, you'll need to customize the library.
+
+> **Note:** This library was created by **Sittha Manittayakul, a 3rd-year student at King Mongkut's University of Technology Thonburi (KMUTT)**, as part of the INT222 project for the 1st semester of the 2024 academic year.
 
 ## Installation
 
@@ -19,7 +25,7 @@ npm install zyos
 ```javascript
 import zyos from 'zyos'
 
-// Make a GET request (default method if not specified method)
+// Make a GET request (GET is the default method)
 const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1')
 console.log(response.data)
 ```
@@ -45,24 +51,22 @@ console.log(response.data)
 
 ### Request Options
 
-**headers: string**
+**headers: object**
 
-You can set headers in the request by passing an object with the headers you want to set. The headers object should have the header name as the key and the header value as the value.
+You can pass headers in the request by providing an object with key-value pairs. The header name is the key, and the value is the header’s content.
 
-User defined headers will override the default headers if they have the same key, but the default headers will be used if the user defined headers don't have the same key.
+If you set custom headers that match the default headers, your custom headers will override them. The default headers are:
 
-defaultHeaders: `{ 'Content-Type': 'application/json' }`
-
-If you want to set your own `Content-Type`, you can set it in the headers option, it will override the default `Content-Type`.
+`{ 'Content-Type': 'application/json' }`
 
 ```javascript
 import zyos from 'zyos'
 
-// Make a GET request with headers
+// Make a GET request with custom headers
 const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1', {
   headers: {
     'Your-Header': 'Your-Value'
-  },
+  }
 })
 console.log(response.data)
 ```
@@ -71,16 +75,16 @@ console.log(response.data)
 
 **method: string**
 
-You can set the method in the request by passing a string with the method you want to set.
+You can set the HTTP method (GET, POST, PUT, DELETE, etc.) as a string.
 
-defaultMethod: `'GET'`
+The default method is `'GET'`.
 
 ```javascript
 import zyos from 'zyos'
 
-// Make a request with method specified
+// Specify the method for the request
 const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1', {
-  method: 'GET' // or 'POST', 'PUT', 'DELETE', etc.
+  method: 'GET' // or 'POST', 'PUT', etc.
 })
 console.log(response.data)
 ```
@@ -89,12 +93,12 @@ console.log(response.data)
 
 **body: object**
 
-You can set the body in the request by passing an object with the body you want to set.
+To send data with the request, pass an object as the body. This is useful for POST or PUT requests.
 
 ```javascript
 import zyos from 'zyos'
 
-// Make a POST request with body
+// Send a POST request with data
 const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts', {
   method: 'POST',
   body: {
@@ -110,13 +114,16 @@ console.log(response.data)
 
 **useToken: boolean**
 
-If you want to make a request with a token, you can set `useToken` to `true`.
-Zyos will get the token from `token` option first, if it's not set, Zyos will get the token from `tokenGetter` option, if it's not set, Zyos will get the token from `defaultToken` in default config (default is `null`), if it's not set, Zyos will get the token from `defaultTokenGetter` in default config (default is `null`)`.
+If your request requires a token (for example, for authentication), set `useToken` to `true`. Zyos will check for a token in the following order:
+
+1. The `token` option
+2. The `tokenGetter` function
+3. The default token (`defaultToken`) or token getter function (`defaultTokenGetter`) defined in the configuration
 
 ```javascript
 import zyos from 'zyos'
 
-// Make a request with token
+// Make a request with a token
 const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1', {
   useToken: true
 })
@@ -127,16 +134,14 @@ console.log(response.data)
 
 **token: string**
 
-**_Not recommended, if you hardcode the token in the code, it's not safe._**
+**_Warning: Hardcoding tokens is not safe and should be avoided._**
 
-You can set the token in the request by passing a string with the token you want to set. This option will be used if `useToken` is set to `true`.
-
-defaultToken: `null`
+You can manually provide a token by setting the `token` option. This is used only if `useToken` is `true`.
 
 ```javascript
 import zyos from 'zyos'
 
-// Make a request with token
+// Request with a hardcoded token
 const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1', {
   useToken: true,
   token: 'your-token'
@@ -148,14 +153,12 @@ console.log(response.data)
 
 **tokenGetter: function**
 
-You can set the token getter in the request by passing a function that returns the token you want to set. This option will be used if `useToken` is set to `true`.
-
-defaultTokenGetter: `null`
+Instead of hardcoding the token, you can pass a function that returns the token. This function is called when making the request.
 
 ```javascript
 import zyos from 'zyos'
 
-// Make a request with token
+// Request using a token from a function
 const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1', {
   useToken: true,
   tokenGetter: () => {
@@ -169,16 +172,16 @@ console.log(response.data)
 
 **computedFunction: function**
 
-You can set the computed function to compute the response data before returning it.
+You can provide a function to process or modify the response data before it is returned.
 
 ```javascript
 import zyos from 'zyos'
 
-// Make a request with computed function
+// Modify response data before it's returned
 const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1', {
-  computedFunction: (data) => { // data is the response body
+  computedFunction: (data) => {
     data.timestamp = Date.now()
-    return data // return the computed data that added timestamp
+    return data // Return the modified data
   }
 })
 console.log(response.data) // { userId: 1, id: 1, title: '...', body: '...', timestamp: 1630000000000 }
@@ -188,12 +191,12 @@ console.log(response.data) // { userId: 1, id: 1, title: '...', body: '...', tim
 
 ### Defining Config
 
-You can define the default config for all requests by calling `zyos.defineConfig()`.
+You can set default values for all requests using `zyos.defineConfig()`.
 
-i.e.
 ```javascript
 import zyos from 'zyos'
 
+// Define default settings for requests
 zyos.defineConfig({
   defaultHeaders: {
     'Your-Header': 'Your-Value'
@@ -206,4 +209,4 @@ zyos.defineConfig({
 })
 ```
 
-You can config the default headers, default method, default token, and default token getter in the default config. The default config will be used if the options are not set in the request.
+You can define default headers, the default method, and token options. These will be applied if specific settings are not provided in the request.
