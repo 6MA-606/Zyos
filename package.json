@@ -10,8 +10,5 @@
   },
   "author": "Sittha Manittayakul",
   "license": "MIT",
-  "description": "This is a simple package for make window.fetch easier to use.",
-  "publishConfig": {
-    "@6MA-606:registry": "https://npm.pkg.github.com"
-  }
+  "description": "This is a simple package for make window.fetch easier to use."
 }
