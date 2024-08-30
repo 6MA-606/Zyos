@@ -45,10 +45,10 @@ declare module 'zyos' {
     computeFunction?: (data: any) => any;
   }): Promise<ZyosResponse>;
   
-  const _default: {
-    fetch: typeof fetch;
-    defineConfig: typeof defineConfig;
-  };
+  const zyos: {
+    fetch: typeof fetch
+    defineConfig: typeof defineConfig
+  }
 
-  export default _default;
+  export default zyos
 }
