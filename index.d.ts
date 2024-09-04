@@ -1,4 +1,17 @@
 declare class ZyosConfig {
+
+  /**
+   * Always encode the URI when making requests.
+   * Default: true
+   */
+  alwaysEncodeURI: boolean;
+
+  /**
+   * Always use the token for requests.
+   * Default: false
+   */
+  alwaysUseToken: boolean;
+
   /**
    * The default token key used in the headers.
    * Default: 'Authorization'
@@ -26,6 +39,16 @@ declare class ZyosConfig {
    * Default: 'GET'
    */
   defaultMethod: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+  /**
+   * The default logging level for requests.
+   * Default: 'all'
+   * Options: 'none', 'all', 'errors'
+   * 'none' - No logging
+   * 'all' - Log all requests
+   * 'errors' - Log only error responses
+   */
+  logging: 'none' | 'all' | 'warnings';
 
   constructor();
 }

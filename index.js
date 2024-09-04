@@ -5,6 +5,8 @@ class ZyosConfig {
    * Create a new ZyosConfig object
    */
   constructor() {
+    this.alwaysEncodeURI = true
+    this.alwaysUseToken = false
     this.defaultTokenKey = 'Authorization'
     this.defaultToken = null
     this.defaultTokenGetter = null
@@ -12,6 +14,7 @@ class ZyosConfig {
       'Content-Type': 'application/json',
     }
     this.defaultMethod = 'GET'
+    this.logging = 'all'
   }
 }
 
@@ -88,6 +91,11 @@ function defineConfig(userDefinedConfig) {
  * @returns {Promise<ZyosResponse>} The response of the fetch
 */
 async function fetch(url, options = {}) {
+  if (!url) {
+    throw new Error('Zyos Error: URL not provided')
+  } else if (config.alwaysEncodeURI) {
+    url = encodeURI(url)
+  }
 
   const headers = {
     ...config.defaultHeaders,
@@ -104,7 +112,7 @@ async function fetch(url, options = {}) {
     fetchOptions.body = JSON.stringify(options.body)
   }
 
-  if (options.useToken) {
+  if (options.useToken || config.alwaysUseToken) {
     const optionToken = options.token || options.tokenGetter || config.defaultToken || config.defaultTokenGetter || null
     const token = typeof optionToken === 'function' ? optionToken() : optionToken
     const tokenKey = options.tokenKey || config.defaultTokenKey
@@ -124,7 +132,9 @@ async function fetch(url, options = {}) {
     try {
       data = await response.json()
     } catch (error) {
-      console.warn('Zyos Error: Can\'t parse response to JSON. Returning empty object.')
+      if (config.logging === 'warnings' || config.logging === 'all') {
+        console.warn('Zyos Warn: Can\'t parse response to JSON. Returning empty object.')
+      }
       data = {}
     }
 
@@ -133,9 +143,17 @@ async function fetch(url, options = {}) {
     }
 
     if (response.ok) {
-      return ZyosResponse.success(data, response.status)
+      const responseObj = ZyosResponse.success(data, response.status)
+      if (config.logging === 'all') {
+        console.log('Zyos Log: Success response:', responseObj)
+      }
+      return responseObj
     } else {
-      return ZyosResponse.error(data.message, response.status)
+      const responseObj =  ZyosResponse.error(data.message, response.status)
+      if (config.logging === 'all') {
+        console.log('Zyos Log: Error response:', responseObj)
+      }
+      return responseObj
     }
   } catch (error) {
     throw new Error('Zyos Error: ', error)
