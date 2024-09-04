@@ -120,6 +120,10 @@ If your request requires a token (for example, for authentication), set `useToke
 2. The `tokenGetter` function
 3. The default token (`defaultToken`) or token getter function (`defaultTokenGetter`) defined in the configuration
 
+If not defined, Zyos will check `alwaysUseToken` setting in the configuration instead.
+
+This option will override the `alwaysUseToken` setting in the configuration.
+
 ```javascript
 import zyos from 'zyos'
 
@@ -198,14 +202,23 @@ import zyos from 'zyos'
 
 // Define default settings for requests
 zyos.defineConfig({
+  alwaysUseToken: true, // default is false
+  alwaysEncodeURI: true, // default is true
+
+  /* Default is
+    defaultHeaders: {
+      'Content-Type': 'application/json'
+    }
+  */
   defaultHeaders: {
     'Your-Header': 'Your-Value'
   },
-  defaultMethod: 'GET',
-  defaultToken: 'your-token',
-  defaultTokenGetter: () => {
+  defaultMethod: 'GET', // default is 'GET'
+  defaultToken: 'your-token', // default is null
+  defaultTokenGetter: () => { // default is null
     return 'your-token from getter'
-  }
+  },
+  loggings: 'all' // default is 'all'
 })
 ```
 
