@@ -50,8 +50,8 @@ class ZyosResponse {
    * @param {number} statusCode - Status code of the response
    * @returns 
   */
-  static error(message, statusCode) {
-    return new ZyosResponse('error', message, null, statusCode)
+  static error(message, data, statusCode) {
+    return new ZyosResponse('error', message, data, statusCode)
   }
   
   /**
@@ -149,7 +149,7 @@ async function fetch(url, options = {}) {
       }
       return responseObj
     } else {
-      const responseObj =  ZyosResponse.error(data.message, response.status)
+      const responseObj =  ZyosResponse.error(data.message, data, response.status)
       if (config.logging === 'all') {
         console.log('Zyos Log: Error response:', responseObj)
       }
