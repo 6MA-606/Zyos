@@ -218,7 +218,10 @@ zyos.defineConfig({
   defaultTokenGetter: () => { // default is null
     return 'your-token from getter'
   },
-  loggings: 'all' // default is 'all'
+  loggings: 'all', // default is 'all'
+  globalResponseHandler: (response) => { // default is null
+    console.log(response)
+  }
 })
 ```
 

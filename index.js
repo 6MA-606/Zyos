@@ -15,6 +15,7 @@ class ZyosConfig {
     }
     this.defaultMethod = 'GET'
     this.logging = 'all'
+    this.globalResponseHandler = null
   }
 }
 
@@ -91,6 +92,7 @@ function defineConfig(userDefinedConfig) {
  * @returns {Promise<ZyosResponse>} The response of the fetch
 */
 async function fetch(url, options = {}) {
+
   if (!url) {
     throw new Error('Zyos Error: URL not provided')
   } else if (config.alwaysEncodeURI) {
@@ -142,19 +144,25 @@ async function fetch(url, options = {}) {
       data = options.computeFunction(data)
     }
 
+    let responseObj = null
+
     if (response.ok) {
-      const responseObj = ZyosResponse.success(data, response.status)
+      responseObj = ZyosResponse.success(data, response.status)
       if (config.logging === 'all') {
         console.log('Zyos Log: Success response:', responseObj)
       }
-      return responseObj
     } else {
-      const responseObj =  ZyosResponse.error(data.message, data, response.status)
+      responseObj =  ZyosResponse.error(data.message, data, response.status)
       if (config.logging === 'all') {
         console.log('Zyos Log: Error response:', responseObj)
       }
-      return responseObj
     }
+
+    if (config.globalResponseHandler && typeof config.globalResponseHandler === 'function') {
+      config.globalResponseHandler(responseObj)
+    }
+
+    return responseObj
   } catch (error) {
     throw new Error('Zyos Error: ', error)
   }

@@ -50,6 +50,11 @@ declare class ZyosConfig {
    */
   logging: 'none' | 'all' | 'warnings';
 
+  /**
+   * The function to handle responses globally.
+   * @param response The response to handle.
+   */
+  globalResponseHandler: (response: ZyosResponse) => void;
   constructor();
 }
 
@@ -86,9 +91,10 @@ declare class ZyosResponse {
   /**
    * Creates an error response.
    * @param message The error message.
+   * @param data The data to include in the response.
    * @param statusCode The HTTP status code of the error response.
    */
-  static error(message: string, statusCode: number): ZyosResponse;
+  static error(message: string, data: object, statusCode: number): ZyosResponse;
 
   /**
    * Computes new data for the response by passing the current data to a function.
