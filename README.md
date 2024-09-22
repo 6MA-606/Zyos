@@ -1,6 +1,16 @@
-# Zyos
+<div align="center">
+<h1>Zyos</h1>
+
+<img src="https://github.com/user-attachments/assets/19cf1b13-dd7d-425a-9bdf-8acd770efaec" width="220px" />
+
+[![npm](https://img.shields.io/npm/v/zyos?style=for-the-badge&colorB=51C838)](https://www.npmjs.com/package/zyos)
+[![license](https://img.shields.io/badge/MIT-orange?style=for-the-badge&label=License)](#)
 
 Simplifying `window.fetch()` for easier HTTP requests.
+
+</div>
+
+# What is Zyos?
 
 Zyos is a small library that wraps around `window.fetch()` to make it simpler to use for HTTP requests. It offers a straightforward API for working with requests and responses.
 
