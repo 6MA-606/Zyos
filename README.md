@@ -6,6 +6,7 @@
 </a>
 
 [![npm](https://img.shields.io/npm/v/zyos?style=for-the-badge&colorB=51C838)](https://www.npmjs.com/package/zyos)
+[![npm-download](https://img.shields.io/npm/d18m/zyos?style=for-the-badge)](https://www.npmjs.com/package/zyos)
 [![license](https://img.shields.io/badge/MIT-orange?style=for-the-badge&label=License)](#)
 
 Simplifying `window.fetch()` for easier HTTP requests.
