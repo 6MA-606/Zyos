@@ -2,7 +2,7 @@ declare class ZyosConfig {
 
   /**
    * Always encode the URI when making requests.
-   * Default: true
+   * Default: false
    */
   alwaysEncodeURI: boolean;
 
