@@ -51,10 +51,10 @@ declare class ZyosConfig {
   logging: 'none' | 'all' | 'warnings';
 
   /**
-   * The function to handle responses globally.
+   * The async function to handle global responses.
    * @param response The response to handle.
    */
-  globalResponseHandler: (response: ZyosResponse) => void;
+  globalResponseHandler: (response: ZyosResponse) => Promise<void>;
   constructor();
 }
 

@@ -5,7 +5,7 @@ class ZyosConfig {
    * Create a new ZyosConfig object
    */
   constructor() {
-    this.alwaysEncodeURI = true
+    this.alwaysEncodeURI = false
     this.alwaysUseToken = false
     this.defaultTokenKey = 'Authorization'
     this.defaultToken = null
@@ -88,6 +88,7 @@ function defineConfig(userDefinedConfig) {
  * @param {string} options.token - Token to send in the request
  * @param {string} options.tokenKey - Key to send the token in the headers
  * @param {function} options.tokenGetter - Function to get and return the token
+ * @param {boolean} options.noGlobalResponseHandler - Don't use the global response handler
  * @param {(data: object) => object} options.computeFunction - Function to compute the data of the response before returning it
  * @returns {Promise<ZyosResponse>} The response of the fetch
 */
@@ -103,7 +104,9 @@ async function fetch(url, options = {}) {
     ...config.defaultHeaders,
     ...options.headers
   }
+  
   const method = options.method || config.defaultMethod
+
   const fetchOptions = {
     ...options,
     method,
@@ -114,18 +117,31 @@ async function fetch(url, options = {}) {
     fetchOptions.body = JSON.stringify(options.body)
   }
 
-  if (options.useToken || config.alwaysUseToken) {
+  let useToken = false
+
+  if (options.useToken !== undefined) {
+    useToken = options.useToken
+  } else {
+    useToken = config.alwaysUseToken
+  }
+
+  if (useToken) {
     const optionToken = options.token || options.tokenGetter || config.defaultToken || config.defaultTokenGetter || null
     const token = typeof optionToken === 'function' ? optionToken() : optionToken
     const tokenKey = options.tokenKey || config.defaultTokenKey
     if (token) {
       fetchOptions.headers[tokenKey] = `${token}`
     } else {
-      throw new Error('Zyos Error: Token not provided')
+      if (config.logging === 'warnings' || config.logging === 'all') {
+        console.warn('Zyos Warn: Zyos is configured to use token but no token was provided.')
+      }
     }
   }
 
   delete fetchOptions.useToken
+  delete fetchOptions.token
+  delete fetchOptions.tokenKey
+  delete fetchOptions.tokenGetter
 
   try {
     const response = await window.fetch(url, fetchOptions)
@@ -158,8 +174,8 @@ async function fetch(url, options = {}) {
       }
     }
 
-    if (config.globalResponseHandler && typeof config.globalResponseHandler === 'function') {
-      config.globalResponseHandler(responseObj)
+    if (!options.noGlobalResponseHandler && config.globalResponseHandler && typeof config.globalResponseHandler === 'function') {
+      await config.globalResponseHandler(responseObj)
     }
 
     return responseObj
