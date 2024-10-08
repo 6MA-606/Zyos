@@ -79,17 +79,6 @@ function defineConfig(userDefinedConfig) {
 
 /**
  * Fetch data from an API with Zyos
- * @param {string} url - URL to fetch
- * @param {object} options - Fetch options
- * @param {'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'} options.method - Method to use in the request
- * @param {object} options.headers - Headers to send in the request
- * @param {object} options.body - Body to send in the request
- * @param {boolean} options.useToken - Use token in the request
- * @param {string} options.token - Token to send in the request
- * @param {string} options.tokenKey - Key to send the token in the headers
- * @param {function} options.tokenGetter - Function to get and return the token
- * @param {boolean} options.noGlobalResponseHandler - Don't use the global response handler
- * @param {(data: object) => object} options.computeFunction - Function to compute the data of the response before returning it
  * @returns {Promise<ZyosResponse>} The response of the fetch
 */
 async function fetch(url, options = {}) {
@@ -108,10 +97,21 @@ async function fetch(url, options = {}) {
   const method = options.method || config.defaultMethod
 
   const fetchOptions = {
+    mode: 'cors',
+    cache: 'no-cache',
+    redirect: 'follow',
+    referrerPolicy: 'no-referrer',
     ...options,
     method,
     headers,
   }
+
+  delete fetchOptions.useToken
+  delete fetchOptions.token
+  delete fetchOptions.tokenKey
+  delete fetchOptions.tokenGetter
+  delete fetchOptions.retry
+  delete fetchOptions.timeout
 
   if (options.body) {
     fetchOptions.body = JSON.stringify(options.body)
@@ -138,50 +138,94 @@ async function fetch(url, options = {}) {
     }
   }
 
-  delete fetchOptions.useToken
-  delete fetchOptions.token
-  delete fetchOptions.tokenKey
-  delete fetchOptions.tokenGetter
+  let attempts = 0
+  let retry = options.retry || 0
+  const timeout = options.timeout || 5000
+  
+  while (attempts <= retry) {
+    const controller = new AbortController()
+    fetchOptions.signal = controller.signal
 
-  try {
-    const response = await window.fetch(url, fetchOptions)
-    let data
+    let timeoutPromise = null
 
+    if (timeout > 0) {
+      timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => {
+          controller.abort()
+          reject(new Error('Request timeout'))
+        }, timeout)
+      )
+    }
+    
     try {
-      data = await response.json()
+      const fetchPromise = window.fetch(url, fetchOptions)
+
+      let response = null
+      if (timeout > 0) {
+        response = await Promise.race([fetchPromise, timeoutPromise])
+      } else {
+        response = await fetchPromise
+      }
+
+      let data
+
+      try {
+        data = await response.json()
+      } catch (error) {
+        if (config.logging === 'warnings' || config.logging === 'all') {
+          console.warn('Zyos Warn: Can\'t parse response to JSON. Returning empty object.')
+        }
+        data = {}
+      }
+
+      if (options.computeFunction && typeof options.computeFunction === 'function') {
+        data = options.computeFunction(data)
+      }
+
+      let responseObj = null
+
+      if (response.ok) {
+        responseObj = ZyosResponse.success(data, response.status)
+        if (config.logging === 'all') {
+          console.log('Zyos Log: Success response:', responseObj)
+        }
+      } else {
+        responseObj =  ZyosResponse.error(data.message, data, response.status)
+        if (config.logging === 'all') {
+          console.log('Zyos Log: Error response:', responseObj)
+        }
+      }
+
+      if (!options.noGlobalResponseHandling && config.globalResponseHandler && typeof config.globalResponseHandler === 'function') {
+        await config.globalResponseHandler(responseObj)
+      }
+
+      return responseObj
     } catch (error) {
       if (config.logging === 'warnings' || config.logging === 'all') {
-        console.warn('Zyos Warn: Can\'t parse response to JSON. Returning empty object.')
+        console.warn('Zyos Warn: ' + error)
+
+        if (timeout > 0) {
+          console.warn('Zyos Warn: Timeout reached.')
+        }
+
+        if (error.name === 'AbortError') {
+          console.warn('Zyos Warn: Request aborted.')
+        }
+
+        if (attempts < retry) {
+          console.warn('Zyos Warn: Retrying... (' + (retry - attempts)  + ' retries left)')
+        }
+
+        if (attempts === retry) {
+          console.warn('Zyos Warn: No more retries left.')
+        }
+
       }
-      data = {}
+      attempts++
     }
-
-    if (options.computeFunction && typeof options.computeFunction === 'function') {
-      data = options.computeFunction(data)
-    }
-
-    let responseObj = null
-
-    if (response.ok) {
-      responseObj = ZyosResponse.success(data, response.status)
-      if (config.logging === 'all') {
-        console.log('Zyos Log: Success response:', responseObj)
-      }
-    } else {
-      responseObj =  ZyosResponse.error(data.message, data, response.status)
-      if (config.logging === 'all') {
-        console.log('Zyos Log: Error response:', responseObj)
-      }
-    }
-
-    if (!options.noGlobalResponseHandler && config.globalResponseHandler && typeof config.globalResponseHandler === 'function') {
-      await config.globalResponseHandler(responseObj)
-    }
-
-    return responseObj
-  } catch (error) {
-    throw new Error('Zyos Error: ', error)
   }
+  return ZyosResponse.error('Max retries reached.', null, 0)
 }
 
 export { ZyosResponse, ZyosConfig }

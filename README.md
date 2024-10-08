@@ -204,6 +204,40 @@ const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1'
 console.log(response.data) // { userId: 1, id: 1, title: '...', body: '...', timestamp: 1630000000000 }
 ```
 
+<br />
+
+**timeout: number**
+
+You can set a timeout for the request in milliseconds. If the request takes longer than the timeout, it will be rejected.
+
+```javascript
+import zyos from 'zyos'
+
+// Modify response data before it's returned
+const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1', {
+  timeout: 5000 // 5 seconds
+})
+console.log(response.data) // { userId: 1, id: 1, title: '...', body: '...', timestamp: 1630000000000 }
+```
+
+<br />
+
+**retry: number**
+
+You can set the number of times to retry the request if it fails. The default is `0` (no retries).
+
+> If you set a retry and a timeout, the timeout will be applied to each retry.
+
+```javascript
+import zyos from 'zyos'
+
+// Modify response data before it's returned
+const response = await zyos.fetch('https://jsonplaceholder.typicode.com/posts/1', {
+  retry: 3 // Retry 3 times
+})
+console.log(response.data) // { userId: 1, id: 1, title: '...', body: '...', timestamp: 1630000000000 }
+```
+
 ---
 
 ### Defining Config
@@ -232,7 +266,7 @@ zyos.defineConfig({
     return 'your-token from getter'
   },
   loggings: 'all', // default is 'all'
-  globalResponseHandler: (response) => { // default is null
+  globalResponseHandling: (response) => { // default is null
     console.log(response)
   }
 })

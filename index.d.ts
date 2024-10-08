@@ -106,19 +106,89 @@ declare class ZyosResponse {
 
 declare function defineConfig(userDefinedConfig: Partial<ZyosConfig>): void;
 
+/**
+ * Makes a request to the specified URL with the given options.
+ * @param url The URL to make the request to.
+ * @param options Options to configure the request.
+ * @returns A promise that resolves with the response of the request.
+ * @example
+ * ```javascript
+ * const data = await zyos.fetch('https://api.example.com/data')
+ */
 declare function fetch(
+  /**
+   * The URL to make the request to.
+   */
   url: string,
-  options?: {
-    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-    headers?: Record<string, string>;
-    body?: object;
-    useToken?: boolean;
-    token?: string;
-    tokenKey?: string;
-    tokenGetter?: () => string;
-    computeFunction?: (data: object) => object;
-  }
-): Promise<ZyosResponse>;
 
-export { ZyosResponse, ZyosConfig, defineConfig, fetch };
-export default { fetch, defineConfig };
+  /**
+   * Options to configure the request.
+   */
+  options?: {
+    /**
+     * The HTTP method to use for the request.
+     */
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+
+    /**
+     * The headers to include in the request.
+     */
+    headers?: Record<string, string>
+
+    /**
+     * The body of the request.
+     */
+    body?: object
+
+    /**
+     * Use token in the request.
+     */
+    useToken?: boolean
+
+    /**
+     * Token to send in the request.
+     */
+    token?: string
+
+    /**
+     * Key to send the token in the headers.
+     */
+    tokenKey?: string
+
+    /**
+     * Function to get and return the token
+     * @returns The token to send in the request.
+     * @example
+     * ```javascript
+     * tokenGetter: () => {
+     *  return localStorage.getItem('token')
+     * }
+     * ```
+     */
+    tokenGetter?: () => string
+
+    /**
+     * Number of times to retry the request if it fails (0 for no retries).
+     */
+    retry?: number
+
+    /**
+     * Timeout of the request in milliseconds (0 for no timeout).
+     */
+    timeout?: number
+
+    /**
+     * Function to compute the data of the response before returning it.
+     * @param data The data of the response to compute.
+     * @returns Computed data to include in the response.
+     */
+    computeFunction?: (data: object) => object
+
+    /**
+     * Don't use the global response handler for this request.
+     */
+    noGlobalResponseHandling?: boolean
+  }
+): Promise<ZyosResponse>
+
+export { ZyosResponse, ZyosConfig, defineConfig, fetch }
