@@ -1,38 +1,17 @@
-
-class ZyosConfig {
-
-  /**
-   * Create a new ZyosConfig object
-   */
-  constructor() {
-    this.alwaysEncodeURI = false
-    this.alwaysUseToken = false
-    this.defaultTokenKey = 'Authorization'
-    this.defaultToken = null
-    this.defaultTokenGetter = null
-    this.defaultHeaders = {
-      'Content-Type': 'application/json',
-    }
-    this.defaultMethod = 'GET'
-    this.logging = 'all'
-    this.globalResponseHandler = null
-  }
-}
-
 class ZyosResponse {
   
   /**
    * Create a new ZyosResponse object
-   * @param {string} status - Status of the response
-   * @param {string} message - Message of the response
-   * @param {object} data - Data of the response
    * @param {number} statusCode - Status code of the response
+   * @param {string} statusBrief - Brief status of the response
+   * @param {object} data - Data of the response
+   * @param {string} message - Message of the response
   */
-  constructor(status, message, data, statusCode) {
-    this.status = status
-    this.message = message || null
-    this.data = data || null
+  constructor(statusCode, statusBrief, data, message) {
     this.statusCode = statusCode || null
+    this.statusBrief = statusBrief || null
+    this.data = data || null
+    this.message = message || null
   }
 
   /**
@@ -41,8 +20,8 @@ class ZyosResponse {
    * @param {number} statusCode - Status code of the response
    * @returns 
   */
-  static success(data, statusCode) {
-    return new ZyosResponse('success', null, data, statusCode)
+  static success(data = null, statusCode = null) {
+    return new ZyosResponse(statusCode, 'success', data, null)
   }
   
   /**
@@ -51,8 +30,56 @@ class ZyosResponse {
    * @param {number} statusCode - Status code of the response
    * @returns 
   */
-  static error(message, data, statusCode) {
-    return new ZyosResponse('error', message, data, statusCode)
+  static error(message = null, data = null, statusCode = null) {
+    return new ZyosResponse(statusCode, 'error', data, message)
+  }
+
+  /**
+   * Set the status code of the response
+   * @param {number} statusCode - Status code of the response
+   * @returns {ZyosResponse} The updated response object.
+   */
+  setStatusCode(statusCode) {
+    this.statusCode = statusCode
+    return this
+  }
+
+  /**
+   * Set the status brief of the response
+   * @param {string} statusBrief - Brief status of the response
+   * @returns {ZyosResponse} The updated response object.
+   */
+  setStatusBrief(statusBrief) {
+    this.statusBrief = statusBrief
+    return this
+  }
+
+  /**
+   * Set the data of the response
+   * @param {object} data - Data of the response
+   * @returns {ZyosResponse} The updated response object.
+   */
+  setData(data) {
+    this.data = data
+    return this
+  }
+
+  /** 
+   * Set the message of the response
+   * @param {string} message - Message of the response
+   * @returns {ZyosResponse} The updated response object.
+   */
+  setMessage(message) {
+    this.message = message
+    return this
+  }
+
+  /**
+   * Check if the response is ok
+   * @returns {boolean} True if the response is ok, false otherwise
+   */
+  get ok() {
+    return this.statusBrief === 'success'
   }
   
   /**
@@ -66,21 +93,42 @@ class ZyosResponse {
   }
 }
 
-/** @type {ZyosConfig} */
-const config = new ZyosConfig()
+/** @type {import(".").ZyosConfig} */
+const config = {
+  alwaysEncodeURI: false,
+  alwaysUseToken: false,
+  defaultTokenKey: 'Authorization',
+  defaultToken: null,
+  defaultTokenGetter: null,
+  defaultHeaders: {
+    'Content-Type': 'application/json',
+  },
+  defaultMethod: 'GET',
+  logging: 'all',
+  globalResponseHandler: null
+}
 
 /**
  * Define the Zyos configuration
- * @param {ZyosConfig} userDefinedConfig - Configuration to define
+ * @param {import(".").ZyosConfig} userDefinedConfig - The user defined configuration
  */
 function defineConfig(userDefinedConfig) {
   Object.assign(config, userDefinedConfig)
 }
 
 /**
- * Fetch data from an API with Zyos
- * @returns {Promise<ZyosResponse>} The response of the fetch
-*/
+ * Create a response object
+ * @param {number} statusCode - Status code of the response
+ * @param {string} statusBrief - Brief status of the response
+ * @param {object} data - Data of the response
+ * @param {string} message - Message of the response
+ * @returns {ZyosResponse} The response object
+ */
+function createResponse(statusCode, statusBrief, data, message) {
+  return new ZyosResponse(statusCode, statusBrief, data, message)
+}
+
+
 async function fetch(url, options = {}) {
 
   if (!url) {
@@ -190,7 +238,7 @@ async function fetch(url, options = {}) {
           console.log('Zyos Log: Success response:', responseObj)
         }
       } else {
-        responseObj =  ZyosResponse.error(data.message, data, response.status)
+        responseObj = ZyosResponse.error(data.message, data, response.status)
         if (config.logging === 'all') {
           console.log('Zyos Log: Error response:', responseObj)
         }
@@ -225,12 +273,13 @@ async function fetch(url, options = {}) {
       attempts++
     }
   }
-  return ZyosResponse.error('Max retries reached.', null, 0)
+  console.error('Zyos Error: Max retries reached.')
 }
 
-export { ZyosResponse, ZyosConfig }
+export { HTTPStatusCode, ZyosResponse, ZyosConfig }
 
 export default {
   fetch,
+  createResponse,
   defineConfig
 }
