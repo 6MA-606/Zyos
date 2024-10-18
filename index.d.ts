@@ -330,6 +330,19 @@ declare class ZyosResponse {
     */
   message: string | null;
 
+  /**
+   * Whether the response is successful
+   * @returns True if the response is successful, false otherwise.
+   * @example
+   * ```javascript
+   * const response = await zyos.fetch('https://api.example.com/data')
+   * if (response.ok) {
+   *  console.log('Request was successful')
+   * }
+   * ```
+   */
+  ok: boolean;
+
 
   constructor(statusCode?: number | null, statusBrief?: string,  data?: object | null, message?: string | null);
 
