@@ -276,7 +276,7 @@ async function fetch(url, options = {}) {
   console.error('Zyos Error: Max retries reached.')
 }
 
-export { HTTPStatusCode, ZyosResponse, ZyosConfig }
+export { ZyosResponse }
 
 export default {
   fetch,
