@@ -1,6 +1,6 @@
 {
   "name": "zyos",
-  "version": "1.5.0-beta.1",
+  "version": "1.5.0-beta.1001",
   "main": "index.js",
   "repository": {
     "url": "https://github.com/6MA-606/Zyos"
