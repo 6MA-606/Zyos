@@ -532,4 +532,9 @@ declare function fetch(
 ): Promise<ZyosResponse>
 
 export { ZyosResponse, ZyosConfig, HttpStatusCode }
-export default { defineConfig, createResponse, fetch }
+
+export default {
+  defineConfig,
+  createResponse,
+  fetch
+}
