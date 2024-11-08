@@ -2,19 +2,20 @@ import { HttpStatusCode } from "./enum/HttpStatusCode"
 
 class ZyosResponse {
   
-  constructor(statusCode, statusBrief, data, message) {
+  constructor(statusCode, statusBrief, data, message, httpResponse) {
     this.statusCode = statusCode || null
     this.statusBrief = statusBrief || null
     this.data = data || null
     this.message = message || null
+    this.httpResponse = httpResponse || null
   }
 
-  static success(data = null, statusCode = null) {
-    return new ZyosResponse(statusCode, 'success', data, null)
+  static success(data = null, statusCode = null, httpResponse = null) {
+    return new ZyosResponse(statusCode, 'success', data, null, httpResponse)
   }
   
-  static error(message = null, data = null, statusCode = null) {
-    return new ZyosResponse(statusCode, 'error', data, message)
+  static error(message = null, data = null, statusCode = null, httpResponse = null) {
+    return new ZyosResponse(statusCode, 'error', data, message, httpResponse)
   }
 
   setStatusCode(statusCode) {
@@ -100,8 +101,16 @@ async function fetch(url, options = {}) {
   delete fetchOptions.retry
   delete fetchOptions.timeout
 
-  if (options.body) {
+  if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
     fetchOptions.body = JSON.stringify(options.body)
+  } else if (options.body && options.body instanceof FormData) {
+    if (fetchOptions.headers['Content-Type'] === 'application/json') {
+      if (config.logging === 'warnings' || config.logging === 'all') {
+        console.warn('Zyos Warn: FormData provided but Content-Type is application/json. Removing Content-Type header.')
+      }
+      delete fetchOptions.headers['Content-Type']
+    }
+    fetchOptions.body = options.body
   }
 
   let useToken = false
@@ -147,6 +156,9 @@ async function fetch(url, options = {}) {
     try {
       const fetchPromise = window.fetch(url, fetchOptions)
 
+      /**
+       * @type {Response}
+       */
       let response = null
       if (timeout > 0) {
         response = await Promise.race([fetchPromise, timeoutPromise])
@@ -157,7 +169,14 @@ async function fetch(url, options = {}) {
       let data
 
       try {
-        data = await response.json()
+        const contentType = response.headers.get('Content-Type')
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json()
+        } else if (contentType && contentType.includes('text')) {
+          data = await response.text()
+        } else {
+          data = await response.blob()
+        }
       } catch (error) {
         if (config.logging === 'warnings' || config.logging === 'all') {
           console.warn('Zyos Warn: Can\'t parse response to JSON. Returning empty object.')
@@ -172,12 +191,12 @@ async function fetch(url, options = {}) {
       let responseObj = null
 
       if (response.ok) {
-        responseObj = ZyosResponse.success(data, response.status)
+        responseObj = ZyosResponse.success(data, response.status, response)
         if (config.logging === 'all') {
           console.log('Zyos Log: Success response:', responseObj)
         }
       } else {
-        responseObj = ZyosResponse.error(data.message, data, response.status)
+        responseObj = ZyosResponse.error(data.message, data, response.status, response)
         if (config.logging === 'all') {
           console.log('Zyos Log: Error response:', responseObj)
         }

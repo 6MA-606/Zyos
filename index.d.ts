@@ -25,6 +25,11 @@ declare class ZyosResponse {
   message: string | null;
 
   /**
+   * The normal HTTP response object.
+   */
+  httpResponse: Response | null;
+
+  /**
    * Whether the response is successful
    * @returns True if the response is successful, false otherwise.
    * @example
@@ -54,16 +59,20 @@ declare class ZyosResponse {
    * Creates a success response.
    * @param data The data to include in the response.
    * @param statusCode The HTTP status code of the response.
+   * @param httpResponse The HTTP response object.
+   * @returns A new ZyosResponse object.
    */
-  static success(data?: object, statusCode?: number): ZyosResponse;
+  static success(data?: object, statusCode?: number, httpResponse?: Response): ZyosResponse;
 
   /**
    * Creates an error response.
    * @param message The error message.
    * @param data The data to include in the response.
    * @param statusCode The HTTP status code of the error response.
+   * @param httpResponse The HTTP response object.
+   * @returns A new ZyosResponse object.
    */
-  static error(message?: string, data?: object, statusCode?: number): ZyosResponse;
+  static error(message?: string, data?: object, statusCode?: number, httpResponse?: Response): ZyosResponse;
 
   /**
    * Sets the status code of the response.
