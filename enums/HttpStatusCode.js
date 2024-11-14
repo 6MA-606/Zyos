@@ -1,9 +1,7 @@
-// HttpStatusCode.js
-
 /**
  * Enum representing the HTTP status codes.
  */
-export const HttpStatusCode = {
+export const HttpStatusCode = Object.freeze({
   OK: 200,
   CREATED: 201,
   ACCEPTED: 202,
@@ -62,4 +60,4 @@ export const HttpStatusCode = {
   LOOP_DETECTED: 508,
   NOT_EXTENDED: 510,
   NETWORK_AUTHENTICATION_REQUIRED: 511,
-}
+})
