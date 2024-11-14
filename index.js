@@ -12,12 +12,10 @@ function defineConfig(userDefinedConfigs) {
 }
 
 async function fetch(url, options = {}) {
-  console.log('fetching...', url, options, configs)
   return await fetchData(url, options, configs)
 }
 
 async function xhr(url, options = {}) {
-  console.log('xhr...', url, options, configs)
   return await xhrRequest(url, options)
 }
 

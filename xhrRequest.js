@@ -30,6 +30,18 @@ export function xhrRequest(url, options = {}) {
       }
     }
 
+    xhr.upload.addEventListener('progress', (e) => {
+      if (options.onUploadProgress) {
+        options.onUploadProgress(e)
+      }
+    })
+
+    xhr.addEventListener('progress', (e) => {
+      if (options.onDownloadProgress) {
+        options.onDownloadProgress(e)
+      }
+    })
+
     xhr.onerror = () => reject(new Error(xhr.statusText));
     xhr.ontimeout = () => reject(new Error('Request timeout'));
 
