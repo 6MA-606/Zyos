@@ -6,6 +6,10 @@ const CONTENT_TYPE_JSON = 'application/json'
 const CONTENT_TYPE_TEXT = 'text/'
 const CONTENT_TYPE_HEADER = 'Content-Type'
 
+function removeUnnecessaryProperties(fetchOptions) {
+  ['useToken', 'token', 'tokenKey', 'tokenGetter', 'retry', 'timeout'].forEach(prop => delete fetchOptions[prop])
+}
+
 async function parseResponse(response) {
   const contentType = response.headers.get(CONTENT_TYPE_HEADER)
   if (contentType && contentType.includes(CONTENT_TYPE_JSON)) {
@@ -95,7 +99,7 @@ function handleFetchError(error, config, timeout, attempts, retry) {
   }
 }
 
-export async function fetch(url, options = {}) {
+export async function fetchData(url, options = {}, config) {
 
   if (!url) {
     throw new Error('Zyos Error: URL not provided')
@@ -123,8 +127,7 @@ export async function fetch(url, options = {}) {
     headers,
   }
 
-  // Remove unnecessary properties from fetchOptions
-  ['useToken', 'token', 'tokenKey', 'tokenGetter', 'retry', 'timeout'].forEach(prop => delete fetchOptions[prop])
+  removeUnnecessaryProperties(fetchOptions)
 
   if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
     fetchOptions.body = JSON.stringify(options.body)
@@ -175,7 +178,7 @@ export async function fetch(url, options = {}) {
       const response = await getResponse(fetchPromise, timeoutPromise, timeout)
       const data = await handleResponse(response, config, options)
 
-      const responseObj = createResponseObject(response, data, config)
+      responseObj = createResponseObject(response, data, config)
 
       await handleGlobalResponse(responseObj, config, options)
 
@@ -189,7 +192,6 @@ export async function fetch(url, options = {}) {
 
     attempts++
   }
-  console.error('Zyos Error: Max retries reached.')
 
   return responseObj
 }

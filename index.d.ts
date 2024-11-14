@@ -170,9 +170,9 @@ interface ZyosConfig {
 
 /**
  * Define the Zyos configuration
- * @param userDefinedConfig 
+ * @param userDefinedConfigs
  */
-declare function defineConfig(userDefinedConfig: ZyosConfig): void;
+declare function defineConfig(userDefinedConfigs: ZyosConfig): void;
 
 /**
  * Creates a response object with the specified properties.
@@ -272,10 +272,28 @@ declare function fetch(
 
 ): Promise<ZyosResponse>
 
+/**
+ * Makes a request to the specified URL with the given options.
+ * @param url The URL to make the request to.
+ * @param options Options to configure the request.
+ */
+declare function xhr(
+  /**
+   * The URL to make the request to.
+   */
+  url: string,
+
+  /**
+   * Options to configure the request.
+   */
+  options: XMLHttpRequest
+): Promise<XMLHttpRequest.response>
+
 export { ZyosResponse, HttpStatusCode }
 
 export default {
   defineConfig,
   createResponse,
-  fetch
+  fetch,
+  xhr
 }
